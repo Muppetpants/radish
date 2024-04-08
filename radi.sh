@@ -73,13 +73,12 @@ function installWireguard() {
     clear
     apt update -y
     apt install wireguard resolvconf
-echo ""
-echo "Wireguard client has been installed."
+    echo ""
+    echo "Wireguard client has been installed."
 
 }
 
 function installKismet(){
-    # Asking user input for name, to declare variable
     clear
     user=$(logname)
     mkdir /home/$user/kismetFiles 2>/dev/null
@@ -107,7 +106,6 @@ log_prefix=/home/$user/kismet
 log_types=kismet,pcapng
 EOF
 
-
 cat <<EOF > "$gpsd_conf"
 # Start the gpsd daemon automatically at boot time
 START_DAEMON="true"
@@ -125,17 +123,18 @@ echo "Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 's
 }
 
 function installWPASupplicant(){
-
+    clear
     wget https://raw.githubusercontent.com/Muppetpants/wpa_supplicant/main/fixMyWpaSupplicant.sh
-echo " " 
-echo "Run script as sudo (sudo bash fixMyWpaSupplicant.sh)"
+    echo " " 
+    echo "Run script as sudo (sudo bash fixMyWpaSupplicant.sh)"
 }
 
 
 function installRpiAp (){
+    clear
     wget https://raw.githubusercontent.com/Muppetpants/rpi-ap/main/rpi-ap.sh
-echo " " 
-echo "Run script as sudo (sudo bash rpi-ap.sh)"
+    echo " " 
+    echo "Run script as sudo (sudo bash rpi-ap.sh)"
 }
 
 
@@ -153,7 +152,7 @@ function install_everything(){
 function killBluetooth(){
     echo "dtoverlay=disable-bt" >> /boot/config.txt
     echo " " 
-echo "Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
+    echo "Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
 
 
 }
