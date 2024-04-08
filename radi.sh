@@ -35,7 +35,7 @@ case $menuinput in
         1) installMotionEye;;
         2) installWireguard;;
         3) installKismet;;
-        4) TBD1;;
+        4) installWPASupplicant;;
         5) TBD2;;
         x|X) echo -e "\n\n Exiting radi.sh - Happy Hunting! \n" ;;
         !) install_everything;;
@@ -53,7 +53,7 @@ function checkRoot() {
 }
 
 function installMotionEye() {
-    #/etc/os-release (pretty name contains bullseye)
+    clear
     distro=$(cat /etc/os-release | egrep  "PRETTY_NAME" | egrep -c bullseye) # distro check
     if [ $distro -ne 1 ]
      then echo -e "\n  Bullseye Not Detected - Please flash bullseye and retry  \n"; exit
@@ -65,9 +65,11 @@ function installMotionEye() {
     motioneye_init
     systemctl disable motion.service
     systemctl stop motion.service
+    echo "MotionEye is running at http://127.0.0.1:8765"
 }
 
 function installWireguard() {
+    clear
     apt update -y
     apt install wireguard resolvconf
 
@@ -75,18 +77,15 @@ function installWireguard() {
 
 function installKismet(){
     # Asking user input for name, to declare variable
-clear
-user=$(logname)
-mkdir /home/$user/kismetFiles
-
-
-
-kismet_conf="/etc/kismet/kismet_site.conf"
+    clear
+    user=$(logname)
+    mkdir /home/$user/kismetFiles
+    kismet_conf="/etc/kismet/kismet_site.conf"
 
 wget -O - https://www.kismetwireless.net/repos/kismet-release.gpg.key --quiet | gpg --dearmor | sudo tee /usr/share/keyrings/kismet-archive-keyring.gpg >/dev/null
 echo 'deb [signed-by=/usr/share/keyrings/kismet-archive-keyring.gpg] https://www.kismetwireless.net/repos/apt/release/bullseye bullseye main' | sudo tee /etc/apt/sources.list.d/kismet.list >/dev/null
-sudo apt update -y
-sudo apt install gpsd kismet -y
+apt update -y
+apt install gpsd kismet -y
 clear
 
 # Create the following config file for kismet
@@ -103,7 +102,8 @@ gps=gpsd:host=localhost,port=2947
 log_prefix=/home/$user/kismet
 log_types=kismet,pcapng
 EOF
-clear
+
+echo "Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 'sudo kismet'. "
 }
 
 function install_everything(){
