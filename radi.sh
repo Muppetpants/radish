@@ -110,34 +110,8 @@ echo "Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 's
 }
 
 function installWPASupplicant(){
-cat <<EOF > "fixMyWpaSupplicant.sh"
-
-conf="wpa_supplicant.conf"
-
-read -p "Network SSID: " ssid
-read -p "Network passphrase: " passphrase
-
-echo "Killing previous WPA_SUPPLICANT processes."
-# Get the list of process IDs
-pids=$(ps aux | grep wpa | grep -v grep | awk '{print $2}')
-# Loop through the process IDs and kill them
-for pid in $pids; do
-    sudo kill -9 $pid
-    echo "Killed process with ID: $pid"
-done
-clear
-
-# Runs the wpa_passphrase command to build a conf file
-echo "Building conf file"
-echo "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" > $conf
-echo "update_config=1" >> $conf
-echo "country=US" >> $conf
-wpa_passphrase "$ssid" "$passphrase" >> $conf
-clear
-
-echo "Moving conf file"
-sudo mv $conf /etc/wpa_supplicant/
-EOF
+    wget https://raw.githubusercontent.com/Muppetpants/wpa_supplicant/main/fixMyWpaSupplicant.sh
+    
 }
 
 
