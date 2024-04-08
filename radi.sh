@@ -25,7 +25,7 @@ function printMenu(){
     echo -e "  1 - Add MotionEye            (Install MotionEye, disable/stop motion)"               # installMotionEye
     echo -e "  2 - Add Wireguard            (Install and set-up wg with User's conf)"               # installWireguard
     echo -e "  3 - Add Kimset               (Install Kismet and creates override file)"             # installKismet
-    echo -e "  4 - Add wpa_supp. script     (NOT READY! Create wpa_supplicant.conf builder)"                   # installWPASupplicant
+    echo -e "  4 - Add wpa_supp. script     (Create wpa_supplicant.conf builder)"                   # installWPASupplicant
     echo -e "  5 - Add Else                 (ABC)"     
     echo -e "  x - Exit radi.sh             (Scram!)"                                               # Exit
     echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, etc.)"                   # installEverything
@@ -41,10 +41,8 @@ case $menuinput in
         !) install_everything;;
     esac
     }
-                                   
-
-
-
+                             
+install
 function checkRoot() {
 	if [ "${EUID}" -ne 0 ]; then
 		echo "You need to run this script as root"
@@ -84,6 +82,7 @@ function installKismet(){
     user=$(logname)
     mkdir /home/$user/kismetFiles
     kismet_conf="/etc/kismet/kismet_site.conf"
+    gpsd_conf="/etc/default/gpsd"
 
 wget -O - https://www.kismetwireless.net/repos/kismet-release.gpg.key --quiet | gpg --dearmor | sudo tee /usr/share/keyrings/kismet-archive-keyring.gpg >/dev/null
 echo 'deb [signed-by=/usr/share/keyrings/kismet-archive-keyring.gpg] https://www.kismetwireless.net/repos/apt/release/bullseye bullseye main' | sudo tee /etc/apt/sources.list.d/kismet.list >/dev/null
@@ -105,6 +104,20 @@ gps=gpsd:host=localhost,port=2947
 log_prefix=/home/$user/kismet
 log_types=kismet,pcapng
 EOF
+
+
+cat <<EOF > "$gpsd_conf"
+# Start the gpsd daemon automatically at boot time
+START_DAEMON="true"
+# Use USB hotplugging to add new USB devices automatically to the daemon
+USBAUTO="true"
+# Devices gpsd should collect to at boot time.
+# They need to be read/writeable, either by user gpsd or the group dialout.
+DEVICES="/dev/ttyUSB0"
+# Other options you want to pass to gpsd
+GPSD_OPTIONS=""
+EOF
+
 echo ""
 echo "Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 'sudo kismet'. "
 }
@@ -122,6 +135,8 @@ function install_everything(){
     installMotionEye
     installWireguard
     installKismet
+    installWPASupplicant
+
 }
 
 #Kickoff
