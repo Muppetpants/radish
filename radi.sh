@@ -17,7 +17,7 @@ archtype=$(uname -m)
 function printMenu(){
     clear
     echo -e "$asciiart"
-    echo "Your one-stop shop for RAD building." 
+    echo "Your one-stop shop for rad RAD builds." 
     echo -e "\n    Select an option from menu:             Rev: $revision Arch: $arch"
 #   echo -e "\n  Menu Options:"                                                                    # function call list
     echo -e "\n Key  Menu Option:             Description:"
@@ -25,7 +25,7 @@ function printMenu(){
     echo -e "  1 - Add MotionEye            (Install MotionEye, disable/stop motion)"               # installMotionEye
     echo -e "  2 - Add Wireguard            (Install and set-up wg with User's conf)"               # installWireguard
     echo -e "  3 - Add Kimset               (Install Kismet and creates override file)"             # installKismet
-    echo -e "  4 - Add wpa_supp. script     (Create wpa_supplicant.conf builder)"                   # installWPASupplicant
+    echo -e "  4 - Add wpa_supp. script     (NOT READY! Create wpa_supplicant.conf builder)"                   # installWPASupplicant
     echo -e "  5 - Add Else                 (ABC)"     
     echo -e "  x - Exit radi.sh             (Scram!)"                                               # Exit
     echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, etc.)"                   # installEverything
@@ -65,6 +65,7 @@ function installMotionEye() {
     motioneye_init
     systemctl disable motion.service
     systemctl stop motion.service
+    echo ""
     echo "MotionEye is running at http://127.0.0.1:8765"
 }
 
@@ -72,6 +73,8 @@ function installWireguard() {
     clear
     apt update -y
     apt install wireguard resolvconf
+echo ""
+echo "Wireguard client has been installed."
 
 }
 
@@ -90,7 +93,7 @@ clear
 
 # Create the following config file for kismet
 cat <<EOF > "$kismet_conf"
-#Overie File (kismet_site.conf)
+#Overide File (kismet_site.conf)
 #bluetooth
 #source=hci0:type=linuxbluetooth
 #wifi
@@ -102,9 +105,42 @@ gps=gpsd:host=localhost,port=2947
 log_prefix=/home/$user/kismet
 log_types=kismet,pcapng
 EOF
-
+echo ""
 echo "Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 'sudo kismet'. "
 }
+
+function installWPASupplicant(){
+cat <<EOF > "fixMyWpaSupplicant.sh"
+
+conf="wpa_supplicant.conf"
+
+read -p "Network SSID: " ssid
+read -p "Network passphrase: " passphrase
+
+echo "Killing previous WPA_SUPPLICANT processes."
+# Get the list of process IDs
+pids=$(ps aux | grep wpa | grep -v grep | awk '{print $2}')
+# Loop through the process IDs and kill them
+for pid in $pids; do
+    sudo kill -9 $pid
+    echo "Killed process with ID: $pid"
+done
+clear
+
+# Runs the wpa_passphrase command to build a conf file
+echo "Building conf file"
+echo "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" > $conf
+echo "update_config=1" >> $conf
+echo "country=US" >> $conf
+wpa_passphrase "$ssid" "$passphrase" >> $conf
+clear
+
+echo "Moving conf file"
+sudo mv $conf /etc/wpa_supplicant/
+EOF
+}
+
+
 
 function install_everything(){
     installMotionEye
