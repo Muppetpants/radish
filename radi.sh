@@ -110,8 +110,10 @@ echo "Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 's
 }
 
 function installWPASupplicant(){
+
     wget https://raw.githubusercontent.com/Muppetpants/wpa_supplicant/main/fixMyWpaSupplicant.sh
-    
+echo " " 
+echo "Run script as sudo (sudo bash fixMyWpaSupplicant.sh)"
 }
 
 
