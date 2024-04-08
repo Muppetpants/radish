@@ -54,7 +54,7 @@ function checkRoot() {
 
 function installMotionEye() {
     #/etc/os-release (pretty name contains bullseye)
-    distro=$(cat /etc/os-release | grep -i -c "PRETTY_NAME=bullseye") # distro check
+    distro=$(cat /etc/os-release | egrep  "PRETTY_NAME" | egrep -c bullseye) # distro check
     if [ $distro -ne 1 ]
      then echo -e "\n  Bullseye Not Detected - Please flash bullseye and retry  \n"; exit
     fi
@@ -76,10 +76,10 @@ function installWireguard() {
 function installKismet(){
     # Asking user input for name, to declare variable
 clear
-read -p "Enter non-root username: " user
+user=$(logname)
 mkdir /home/$user/kismetFiles
 
-clear
+
 
 kismet_conf="/etc/kismet/kismet_site.conf"
 
