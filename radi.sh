@@ -58,7 +58,7 @@ function installMotionEye() {
     if [ $distro -ne 1 ]
      then echo -e "\n  Bullseye Not Detected - Please flash bullseye and retry  \n"; exit
     fi
-
+    raspi-config nonint do_legacy 0
     apt update -y
     apt install python3-dev libcurl4-openssl-dev libssl-dev python3-pip
     pip3 install https://github.com/motioneye-project/motioneye/archive/dev.tar.gz
