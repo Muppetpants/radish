@@ -26,7 +26,8 @@ function printMenu(){
     echo -e "  2 - Add Wireguard            (Install and set-up wg with User's conf)"               # installWireguard
     echo -e "  3 - Add Kimset               (Install Kismet and creates override file)"             # installKismet
     echo -e "  4 - Add wpa_supp. script     (Create wpa_supplicant.conf builder)"                   # installWPASupplicant
-    echo -e "  5 - Add Else                 (ABC)"     
+    echo -e "  5 - Add RPI AP script        (Installs BwithE's Hostapd script)"                     # installRpiAp
+    echo -e "  6 - Disable RPI BT radio     (Update /boot/config.txt (Breaks Kismet hci0))"         # killBluetooth
     echo -e "  x - Exit radi.sh             (Scram!)"                                               # Exit
     echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, etc.)"                   # installEverything
  
@@ -36,7 +37,8 @@ case $menuinput in
         2) installWireguard;;
         3) installKismet;;
         4) installWPASupplicant;;
-        5) TBD2;;
+        5) installRpiAp;;
+        6) killBluetooth;;
         x|X) echo -e "\n\n Exiting radi.sh - Happy Hunting! \n" ;;
         !) install_everything;;
     esac
@@ -80,7 +82,7 @@ function installKismet(){
     # Asking user input for name, to declare variable
     clear
     user=$(logname)
-    mkdir /home/$user/kismetFiles
+    mkdir /home/$user/kismetFiles 2>/dev/null
     kismet_conf="/etc/kismet/kismet_site.conf"
     gpsd_conf="/etc/default/gpsd"
 
@@ -130,15 +132,30 @@ echo "Run script as sudo (sudo bash fixMyWpaSupplicant.sh)"
 }
 
 
+function installRpiAp (){
+    wget https://raw.githubusercontent.com/Muppetpants/rpi-ap/main/rpi-ap.sh
+echo " " 
+echo "Run script as sudo (sudo bash rpi-ap.sh)"
+}
+
 
 function install_everything(){
     installMotionEye
     installWireguard
     installKismet
     installWPASupplicant
-
+    installRpiAp
 }
 
+
+
+function killBluetooth(){
+    echo "dtoverlay=disable-bt" >> /boot/config.txt
+    echo " " 
+echo "Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
+
+
+}
 #Kickoff
 checkRoot
 printMenu
