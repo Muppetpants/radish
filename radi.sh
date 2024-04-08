@@ -145,6 +145,7 @@ function install_everything(){
     installKismet
     installWPASupplicant
     installRpiAp
+    killBluetooth
 }
 
 
