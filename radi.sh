@@ -2,7 +2,7 @@
 clear
 
 asciiart=$(base64 -d <<< "X19fX19fICBfX18gX19fX19fIF8gICBfX19fXyBfICAgXyANCnwgX19fIFwvIF8gXHwgIF8gIChfKSAvICBfX198IHwgfCB8DQp8IHxfLyAvIC9fXCBcIHwgfCB8XyAgXCBgLS0ufCB8X3wgfA0KfCAgICAvfCAgXyAgfCB8IHwgfCB8ICBgLS0uIFwgIF8gIHwNCnwgfFwgXHwgfCB8IHwgfC8gL3wgfF8vXF9fLyAvIHwgfCB8DQpcX3wgXF9cX3wgfF8vX19fLyB8XyhfKV9fX18vXF98IHxfLw==") 
-revision="1.0"
+revision="0.2"
 archtype=$(uname -m)
     if [ "$archtype" == "aarch64" ]; 
       then 
@@ -61,8 +61,10 @@ function installMotionEye() {
     raspi-config nonint do_legacy 0
     apt update -y
     apt install python3-dev libcurl4-openssl-dev libssl-dev python3-pip
-    pip3 install https://github.com/motioneye-project/motioneye/archive/dev.tar.gz
+    pip3 install https://github.com/motioneye-project/motioneye/archive/dev.tar.
+    sleep 1
     motioneye_init
+    sleep 3
     systemctl disable motion.service
     systemctl stop motion.service
     echo ""
@@ -75,6 +77,20 @@ function installWireguard() {
     apt install wireguard resolvconf
     echo ""
     echo "Wireguard client has been installed."
+    echo ""
+    read -p "SETUP: Enter absolute path to client wg.conf: " wgConf
+    thirdLine=$(sed -n '3p' "$wgConf")
+    certIpAddress=$(echo "$thirdLine" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
+    firstThree=$(echo "$certIpAddress" | cut -d. -f1-3)
+    sudo cp $wgConf /etc/wireguard/PiUser.conf
+
+    # Enable Service
+    sudo systemctl enable wg-quick@PiUser
+    sudo systemctl start wg-quick@PiUser
+
+    # Confirm connectivity
+    echo "Pinging WG-Server to test connectivity"
+    ping -c4 $firstThree.1
 
 }
 
@@ -138,6 +154,13 @@ function installRpiAp (){
 }
 
 
+function killBluetooth(){
+    echo "dtoverlay=disable-bt" >> /boot/config.txt
+    echo " " 
+    echo "Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
+}
+
+
 function install_everything(){
     installMotionEye
     installWireguard
@@ -145,17 +168,10 @@ function install_everything(){
     installWPASupplicant
     installRpiAp
     killBluetooth
+    printMenu
 }
 
 
-
-function killBluetooth(){
-    echo "dtoverlay=disable-bt" >> /boot/config.txt
-    echo " " 
-    echo "Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
-
-
-}
 #Kickoff
 checkRoot
 printMenu
