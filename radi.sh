@@ -66,7 +66,7 @@ function installMotionEye() {
     fi
     raspi-config nonint do_legacy 0
     apt update -y
-    apt --no-install-recommends install ca-certificates curl python3 python3-dev libcurl4-openssl-dev gcc libssl-dev
+    apt --no-install-recommends install -y ca-certificates curl python3 python3-dev libcurl4-openssl-dev gcc libssl-dev
     python3 -m pip install --pre motioneye
     motioneye_init
     sleep 3
@@ -84,6 +84,7 @@ function installWireguard() {
     apt install -y wireguard resolvconf
     echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/head
     echo "nameserver 8.4.4.8" >> /etc/resolvconf/resolv.conf.d/head
+    bash /etc/resolvconf/update.d/libc
     echo ""
     echo "Wireguard client has been installed."
     echo ""
