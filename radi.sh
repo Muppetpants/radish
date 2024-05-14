@@ -4,7 +4,7 @@
 clear
 
 asciiart=$(base64 -d <<< "X19fX19fICBfX18gX19fX19fIF8gICBfX19fXyBfICAgXyANCnwgX19fIFwvIF8gXHwgIF8gIChfKSAvICBfX198IHwgfCB8DQp8IHxfLyAvIC9fXCBcIHwgfCB8XyAgXCBgLS0ufCB8X3wgfA0KfCAgICAvfCAgXyAgfCB8IHwgfCB8ICBgLS0uIFwgIF8gIHwNCnwgfFwgXHwgfCB8IHwgfC8gL3wgfF8vXF9fLyAvIHwgfCB8DQpcX3wgXF9cX3wgfF8vX19fLyB8XyhfKV9fX18vXF98IHxfLw==") 
-revision="0.2"
+revision="1.1"
 archtype=$(uname -m)
     if [ "$archtype" == "aarch64" ]; 
       then 
@@ -50,8 +50,7 @@ case $menuinput in
         !) install_everything;;
     esac
     }
-                             
-install
+                        
 function checkRoot() {
 	if [ "${EUID}" -ne 0 ]; then
 		echo "You need to run this script as root"
@@ -206,7 +205,7 @@ function showHelp(){
 optionsHelp()
 {
    # Display Help
-   echo "Syntax: sudo bash radi.sh [-a|b|h|k|m|u|w]"
+   echo "Syntax: sudo bash radi.sh [-a|b|d|h|k|m|u|w]"
    echo "options:"
    echo "-a     Install all tools"
    echo "-b     Kill Bluetooth."
