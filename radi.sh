@@ -25,11 +25,13 @@ function printMenu(){
     echo -e "  1 - Add MotionEye            (Install MotionEye, disable/stop motion)"               # installMotionEye
     echo -e "  2 - Add Wireguard            (Install and set-up wg with User's conf)"               # installWireguard
     echo -e "  3 - Add Kimset               (Install Kismet and creates override file)"             # installKismet
-    echo -e "  4 - Add wpa_supp. script     (Create wpa_supplicant.conf builder)"                   # installWPASupplicant
-    echo -e "  5 - Add RPI AP script        (Installs BwithE's Hostapd script)"                     # installRpiAp
+    echo -e "  4 - Add wpa_supp. script     (Install BwithE's wpa_supplicant.conf tool)"            # installWPASupplicant
+    echo -e "  5 - Add RPI AP script        (Install BwithE's Hostapd script)"                      # installRpiAp
     echo -e "  6 - Disable RPI BT radio     (Update /boot/config.txt (Breaks Kismet hci0))"         # killBluetooth
     echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc)"     # installUseful
-    echo -e "  x - Exit radi.sh             (Scram!)"                                               # Exit
+    echo -e "  a - Configure Wireguard      (Enable wg-quick with wg client .conf)"                 # configureWireguard
+    echo -e "  h - Halp me!                 (Quick man page on what's what around here)"             # showHelp
+    echo -e "  x - Exit radi.sh             (Let's blow this popscicle stand)"                            # Exit
     echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, useful tools,etc.)"      # installEverything
  
  read -n1 -p "  Press key for menu item selection or press X to exit: " menuinput
@@ -41,6 +43,8 @@ case $menuinput in
         5) installRpiAp;;
         6) killBluetooth;;
         7) installUseful;;
+        a|A) configureWireguard;;
+        h|H) showHelp;;
         x|X) echo -e "\n\n Exiting radi.sh - Happy Hunting! \n" ;;
         !) install_everything;;
     esac
@@ -79,21 +83,23 @@ function installWireguard() {
     echo ""
     echo "Wireguard client has been installed."
     echo ""
-    
-    # read -p "SETUP: Enter absolute path to client wg.conf: " wgConf
-    # thirdLine=$(sed -n '3p' "$wgConf")
-    # certIpAddress=$(echo "$thirdLine" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
-    # firstThree=$(echo "$certIpAddress" | cut -d. -f1-3)
-    # sudo cp $wgConf /etc/wireguard/PiUser.conf
+}
 
-    # # Enable Service
-    # sudo systemctl enable wg-quick@PiUser
-    # sudo systemctl start wg-quick@PiUser
+function configureWireguard() {
+    read -p "SETUP: Enter absolute path to client wg.conf: " wgConf
+    thirdLine=$(sed -n '3p' "$wgConf")
+    certIpAddress=$(echo "$thirdLine" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
+    firstThree=$(echo "$certIpAddress" | cut -d. -f1-3)
+    sudo cp $wgConf /etc/wireguard/PiUser.conf
 
-    # # Confirm connectivity
-    # echo "Pinging WG-Server to test connectivity"
-    # sleep 2
-    # ping -c4 $firstThree.1
+    # Enable Service
+    sudo systemctl enable wg-quick@PiUser
+    sudo systemctl start wg-quick@PiUser
+
+    # Confirm connectivity
+    echo "Pinging WG-Server to test connectivity"
+    sleep 2
+    ping -c4 $firstThree.1
 
 }
 
@@ -180,6 +186,13 @@ function install_everything(){
     printMenu
 }
 
+function showHelp(){
+    clear
+    echo "words words"
+    read -n 1 -r -s -p $'Press enter to return to main menu.\n'
+    printMenu
+
+}
 
 #Kickoff
 checkRoot
