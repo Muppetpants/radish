@@ -19,7 +19,6 @@ function printMenu(){
     echo -e "$asciiart"
     echo "Your one-stop shop for rad RAD builds." 
     echo -e "\n    Select an option from menu:             Rev: $revision Arch: $arch"
-#   echo -e "\n  Menu Options:"                                                                    # function call list
     echo -e "\n Key  Menu Option:             Description:"
     echo -e " ---  ------------             ------------"
     echo -e "  1 - Add MotionEye            (Install MotionEye, disable/stop motion)"               # installMotionEye
@@ -30,8 +29,8 @@ function printMenu(){
     echo -e "  6 - Disable RPI BT radio     (Update /boot/config.txt (Breaks Kismet hci0))"         # killBluetooth
     echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc)"     # installUseful
     echo -e "  a - Configure Wireguard      (Enable wg-quick with wg client .conf)"                 # configureWireguard
-    echo -e "  h - Halp me!                 (Quick man page on what's what around here)"             # showHelp
-    echo -e "  x - Exit radi.sh             (Let's blow this popscicle stand)"                            # Exit
+    echo -e "  h - Halp me!                 (Quick man page on what's what around here)"            # showHelp
+    echo -e "  x - Exit radi.sh             (Let's blow this popscicle stand)"                      # Exit
     echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, useful tools,etc.)"      # installEverything
  
  read -n1 -p "  Press key for menu item selection or press X to exit: " menuinput
@@ -78,8 +77,13 @@ function installMotionEye() {
 
 function installWireguard() {
     clear
+    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+    echo "nameserver 8.4.4.8" >> /etc/resolv.conf
+    # echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/head
+    # echo "nameserver 8.4.4.8" >> /etc/resolvconf/resolv.conf.d/head
+    # ./etc/resolvconf/update.d/libc
     apt update -y
-    apt install wireguard resolvconf
+    apt install -y wireguard resolvconf
     echo ""
     echo "Wireguard client has been installed."
     echo ""
@@ -113,7 +117,7 @@ function installKismet(){
 wget -O - https://www.kismetwireless.net/repos/kismet-release.gpg.key --quiet | gpg --dearmor | sudo tee /usr/share/keyrings/kismet-archive-keyring.gpg >/dev/null
 echo 'deb [signed-by=/usr/share/keyrings/kismet-archive-keyring.gpg] https://www.kismetwireless.net/repos/apt/release/bullseye bullseye main' | sudo tee /etc/apt/sources.list.d/kismet.list >/dev/null
 apt update -y
-apt install gpsd kismet -y
+apt install -y gpsd kismet
 clear
 
 # Create the following config file for kismet
@@ -188,7 +192,10 @@ function install_everything(){
 
 function showHelp(){
     clear
-    echo "words words"
+    echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     read -n 1 -r -s -p $'Press enter to return to main menu.\n'
     printMenu
 
