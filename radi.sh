@@ -35,7 +35,7 @@ function printMenu(){
     echo -e "  x - Exit radi.sh             (Let's blow this popscicle stand)"                      # Exit
     echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, useful tools,etc.)"      # installEverything
  
- read -n1 -p "  Press key for menu item selection or press X to exit: " menuinput
+ read -n1 -p " \n\n  Press key for menu item selection or press X to exit: " menuinput
 case $menuinput in
         1) installMotionEye;;
         2) installWireguard;;
@@ -53,7 +53,7 @@ case $menuinput in
                         
 function checkRoot() {
 	if [ "${EUID}" -ne 0 ]; then
-		echo "You need to run this script as root"
+		echo "\n\n You need to run this script as root"
 		exit 1
 	fi
 }
@@ -62,7 +62,7 @@ function installMotionEye() {
     clear
     distro=$(cat /etc/os-release | egrep  "PRETTY_NAME" | egrep -c bullseye) # distro check
     if [ $distro -ne 1 ]
-     then echo -e "\n  Bullseye Not Detected - Please flash bullseye and retry  \n"; exit
+     then echo -e "\n\n  Bullseye Not Detected - Please flash bullseye and retry  \n"; exit
     fi
     raspi-config nonint do_legacy 0
     apt update -y
@@ -72,22 +72,19 @@ function installMotionEye() {
     sleep 3
     systemctl disable motion.service
     systemctl stop motion.service
-    echo ""
-    echo "MotionEye is running at http://127.0.0.1:8765"
+    echo "\n\n MotionEye is running at http://127.0.0.1:8765"
 }
 
 function installWireguard() {
     clear
-    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-    echo "nameserver 8.4.4.8" >> /etc/resolv.conf
+    # echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+    # echo "nameserver 8.4.4.8" >> /etc/resolv.conf
     apt update -y
     apt install -y wireguard resolvconf
     echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/head
     echo "nameserver 8.4.4.8" >> /etc/resolvconf/resolv.conf.d/head
     bash /etc/resolvconf/update.d/libc
-    echo ""
-    echo "Wireguard client has been installed."
-    echo ""
+    echo "\n\n Wireguard client has been installed."
 }
 
 function configureWireguard() {
@@ -102,7 +99,7 @@ function configureWireguard() {
     sudo systemctl start wg-quick@PiUser
 
     # Confirm connectivity
-    echo "Pinging WG-Server to test connectivity"
+    echo "\n\n Pinging WG-Server to test connectivity"
     sleep 2
     ping -c4 $firstThree.1
 
@@ -148,36 +145,33 @@ DEVICES="/dev/ttyUSB0"
 GPSD_OPTIONS=""
 EOF
 
-echo ""
-echo "Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 'sudo kismet'. "
+
+echo "\n\n Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 'sudo kismet'. "
 }
 
 function installWPASupplicant(){
     clear
     wget https://raw.githubusercontent.com/Muppetpants/wpa_supplicant/main/fixMyWpaSupplicant.sh
-    echo " " 
-    echo "Run script as sudo (sudo bash fixMyWpaSupplicant.sh)"
+    echo "\n\n Run script as sudo (sudo bash fixMyWpaSupplicant.sh)"
 }
 
 
 function installRpiAp (){
     clear
     wget https://raw.githubusercontent.com/Muppetpants/rpi-ap/main/rpi-ap.sh
-    echo " " 
-    echo "Run script as sudo (sudo bash rpi-ap.sh)"
+    echo "\n\n Run script as sudo (sudo bash rpi-ap.sh)"
 }
 
 
 function killBluetooth(){
+    clear
     echo "dtoverlay=disable-bt" >> /boot/config.txt
-    echo " " 
-    echo "Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
+    echo "\n\n Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
 }
 
 function installUseful(){
     apt install -y terminator net-tools nmap arp-scan ettercap-text-only aircrack-ng tshark steghide ftp
-    echo " " 
-    echo "Installed some useful tools... "
+    echo "\n\n Installed some useful tools... "
 }
 
 
@@ -197,7 +191,7 @@ function showHelp(){
     echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    read -n 1 -r -s -p $'Press enter to return to main menu.\n'
+    read -n 1 -r -s -p $'Press any key to return to main menu.\n'
     printMenu
 
 }
@@ -205,7 +199,7 @@ function showHelp(){
 optionsHelp()
 {
    # Display Help
-   echo "Syntax: sudo bash radi.sh [-a|b|d|h|k|m|u|w]"
+   echo "\n\n Syntax: sudo bash radi.sh [-a|b|d|h|k|m|u|w]"
    echo "options:"
    echo "-a     Install all tools"
    echo "-b     Kill Bluetooth."
@@ -219,8 +213,7 @@ optionsHelp()
    echo
 }
 
-#Kickoff
-checkRoot
+
 
 # Get arguments/options
 while getopts ":abdhkmuw" option; do
@@ -256,5 +249,7 @@ while getopts ":abdhkmuw" option; do
    esac
 done
 
+#Kickoff
+checkRoot
 printMenu
 
