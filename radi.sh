@@ -28,8 +28,9 @@ function printMenu(){
     echo -e "  4 - Add wpa_supp. script     (Create wpa_supplicant.conf builder)"                   # installWPASupplicant
     echo -e "  5 - Add RPI AP script        (Installs BwithE's Hostapd script)"                     # installRpiAp
     echo -e "  6 - Disable RPI BT radio     (Update /boot/config.txt (Breaks Kismet hci0))"         # killBluetooth
+    echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc)"     # installUseful
     echo -e "  x - Exit radi.sh             (Scram!)"                                               # Exit
-    echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, etc.)"                   # installEverything
+    echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, useful tools,etc.)"      # installEverything
  
  read -n1 -p "  Press key for menu item selection or press X to exit: " menuinput
 case $menuinput in
@@ -39,6 +40,7 @@ case $menuinput in
         4) installWPASupplicant;;
         5) installRpiAp;;
         6) killBluetooth;;
+        7) installUseful;;
         x|X) echo -e "\n\n Exiting radi.sh - Happy Hunting! \n" ;;
         !) install_everything;;
     esac
@@ -60,9 +62,8 @@ function installMotionEye() {
     fi
     raspi-config nonint do_legacy 0
     apt update -y
-    apt install python3-dev libcurl4-openssl-dev libssl-dev python3-pip
-    pip3 install https://github.com/motioneye-project/motioneye/archive/dev.tar.
-    sleep 1
+    apt --no-install-recommends install ca-certificates curl python3 python3-dev libcurl4-openssl-dev gcc libssl-dev
+    python3 -m pip install --pre motioneye
     motioneye_init
     sleep 3
     systemctl disable motion.service
@@ -78,19 +79,21 @@ function installWireguard() {
     echo ""
     echo "Wireguard client has been installed."
     echo ""
-    read -p "SETUP: Enter absolute path to client wg.conf: " wgConf
-    thirdLine=$(sed -n '3p' "$wgConf")
-    certIpAddress=$(echo "$thirdLine" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
-    firstThree=$(echo "$certIpAddress" | cut -d. -f1-3)
-    sudo cp $wgConf /etc/wireguard/PiUser.conf
+    
+    # read -p "SETUP: Enter absolute path to client wg.conf: " wgConf
+    # thirdLine=$(sed -n '3p' "$wgConf")
+    # certIpAddress=$(echo "$thirdLine" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
+    # firstThree=$(echo "$certIpAddress" | cut -d. -f1-3)
+    # sudo cp $wgConf /etc/wireguard/PiUser.conf
 
-    # Enable Service
-    sudo systemctl enable wg-quick@PiUser
-    sudo systemctl start wg-quick@PiUser
+    # # Enable Service
+    # sudo systemctl enable wg-quick@PiUser
+    # sudo systemctl start wg-quick@PiUser
 
-    # Confirm connectivity
-    echo "Pinging WG-Server to test connectivity"
-    ping -c4 $firstThree.1
+    # # Confirm connectivity
+    # echo "Pinging WG-Server to test connectivity"
+    # sleep 2
+    # ping -c4 $firstThree.1
 
 }
 
@@ -158,6 +161,12 @@ function killBluetooth(){
     echo "dtoverlay=disable-bt" >> /boot/config.txt
     echo " " 
     echo "Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
+}
+
+function installUseful(){
+    apt install -y terminator net-tools nmap arp-scan ettercap-text-only aircrack-ng tshark steghide ftp
+    echo " " 
+    echo "Installed some useful tools... "
 }
 
 
