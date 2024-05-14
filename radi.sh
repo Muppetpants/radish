@@ -1,4 +1,6 @@
 #!/bin/bash
+
+
 clear
 
 asciiart=$(base64 -d <<< "X19fX19fICBfX18gX19fX19fIF8gICBfX19fXyBfICAgXyANCnwgX19fIFwvIF8gXHwgIF8gIChfKSAvICBfX198IHwgfCB8DQp8IHxfLyAvIC9fXCBcIHwgfCB8XyAgXCBgLS0ufCB8X3wgfA0KfCAgICAvfCAgXyAgfCB8IHwgfCB8ICBgLS0uIFwgIF8gIHwNCnwgfFwgXHwgfCB8IHwgfC8gL3wgfF8vXF9fLyAvIHwgfCB8DQpcX3wgXF9cX3wgfF8vX19fLyB8XyhfKV9fX18vXF98IHxfLw==") 
@@ -201,7 +203,59 @@ function showHelp(){
 
 }
 
+optionsHelp()
+{
+   # Display Help
+   echo "Syntax: sudo bash radi.sh [-a|b|h|k|m|u|w]"
+   echo "options:"
+   echo "-a     Install all tools"
+   echo "-b     Kill Bluetooth."
+   echo "-d     Print details about tools and set-up"
+   echo "-h     Print help"
+   echo "-k     Install kismet"
+   echo "-m     Install motioneye"
+   echo "-u     Install useful tools"
+   echo "-w     Install wireguard (client)"
+
+   echo
+}
+
 #Kickoff
 checkRoot
+
+# Get arguments/options
+while getopts ":abdhkmuw" option; do
+   case $option in
+      a|A) #all the things
+         install_everything
+         exit;;
+      b|B) # kill bt
+         killBluetooth
+         exit;;
+      d) # blah
+        showHelp
+        exit;;
+      h) # blah
+        optionsHelp
+        exit;;
+      k|K) # install kismet
+         installKismet
+         exit;;
+      m|M) # install motioneye
+         installMotionEye
+         exit;;
+      u|U) # install useful tools
+         installUseful
+         exit;;
+      w|W) # install wireguard
+         installWireguard
+         exit;;
+     \?) # incorrect option
+         echo "Error: Invalid option"
+         optionsHelp
+         exit;;
+   esac
+done
+
 printMenu
 
