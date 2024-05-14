@@ -80,11 +80,10 @@ function installWireguard() {
     clear
     echo "nameserver 8.8.8.8" >> /etc/resolv.conf
     echo "nameserver 8.4.4.8" >> /etc/resolv.conf
-    # echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/head
-    # echo "nameserver 8.4.4.8" >> /etc/resolvconf/resolv.conf.d/head
-    # ./etc/resolvconf/update.d/libc
     apt update -y
     apt install -y wireguard resolvconf
+    echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/head
+    echo "nameserver 8.4.4.8" >> /etc/resolvconf/resolv.conf.d/head
     echo ""
     echo "Wireguard client has been installed."
     echo ""
