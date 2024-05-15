@@ -24,18 +24,18 @@ function printMenu(){
     echo -e "\n Key  Menu Option:             Description:"
     echo -e " ---  ------------             ------------"
     echo -e "  1 - Add MotionEye            (Install MotionEye, disable/stop motion)"               # installMotionEye
-    echo -e "  2 - Add Wireguard            (Install and set-up wg with User's conf)"               # installWireguard
+    echo -e "  2 - Add Wireguard            (Install Wireguard client *REQUIRES REBOOT*)"           # installWireguard
     echo -e "  3 - Add Kimset               (Install Kismet and creates override file)"             # installKismet
     echo -e "  4 - Add wpa_supp. script     (Install BwithE's wpa_supplicant.conf tool)"            # installWPASupplicant
     echo -e "  5 - Add RPI AP script        (Install BwithE's Hostapd script)"                      # installRpiAp
     echo -e "  6 - Disable RPI BT radio     (Update /boot/config.txt (Breaks Kismet hci0))"         # killBluetooth
-    echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc)"     # installUseful
+    echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc.)"    # installUseful
     echo -e "  a - Configure Wireguard      (Enable wg-quick with wg client .conf)"                 # configureWireguard
     echo -e "  h - Halp me!                 (Quick man page on what's what around here)"            # showHelp
-    echo -e "  x - Exit radi.sh             (Let's blow this popscicle stand)"                      # Exit
+    echo -e "  x - Exit radi.sh             (Beat it, nerd.)"                                       # Exit
     echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, useful tools,etc.)"      # installEverything
- 
- read -n1 -p " \n\n  Press key for menu item selection or press X to exit: " menuinput
+    echo " "
+ read -n1 -p "Press key for menu item selection or press X to exit: " menuinput
 case $menuinput in
         1) installMotionEye;;
         2) installWireguard;;
@@ -46,14 +46,14 @@ case $menuinput in
         7) installUseful;;
         a|A) configureWireguard;;
         h|H) showHelp;;
-        x|X) echo -e "\n\n Exiting radi.sh - Happy Hunting! \n" ;;
+        x|X) echo -e "\n Exiting radi.sh - Happy Hunting! \n" ;;
         !) install_everything;;
     esac
     }
                         
 function checkRoot() {
 	if [ "${EUID}" -ne 0 ]; then
-		echo "\n\n You need to run this script as root"
+		echo -e "\n Radi.sh requires root privileges (e.g. sudo bash radi.sh)"
 		exit 1
 	fi
 }
@@ -62,7 +62,7 @@ function installMotionEye() {
     clear
     distro=$(cat /etc/os-release | egrep  "PRETTY_NAME" | egrep -c bullseye) # distro check
     if [ $distro -ne 1 ]
-     then echo -e "\n\n  Bullseye Not Detected - Please flash bullseye and retry  \n"; exit
+     then echo -e "\n  Bullseye Not Detected - Please flash bullseye and retry  \n"; exit
     fi
     raspi-config nonint do_legacy 0
     apt update -y
@@ -72,7 +72,7 @@ function installMotionEye() {
     sleep 3
     systemctl disable motion.service
     systemctl stop motion.service
-    echo "\n\n MotionEye is running at http://127.0.0.1:8765"
+    echo -e "\n MotionEye is running at http://127.0.0.1:8765"
 }
 
 function installWireguard() {
@@ -83,8 +83,12 @@ function installWireguard() {
     apt install -y wireguard resolvconf
     echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/head
     echo "nameserver 8.4.4.8" >> /etc/resolvconf/resolv.conf.d/head
-    bash /etc/resolvconf/update.d/libc
-    echo "\n\n Wireguard client has been installed."
+    #bash /etc/resolvconf/update.d/libc
+    echo -e "\n Wireguard client has been installed."
+    sleep 1
+    echo -e "\n Radi.sh requires a reboot becuase resolvconf is an asshole"
+    read -n 1 -r -s -p $'Press any key to reboot...\n'
+    reboot
 }
 
 function configureWireguard() {
@@ -99,7 +103,7 @@ function configureWireguard() {
     sudo systemctl start wg-quick@PiUser
 
     # Confirm connectivity
-    echo "\n\n Pinging WG-Server to test connectivity"
+    echo -e "\n Pinging WG-Server to test connectivity"
     sleep 2
     ping -c4 $firstThree.1
 
@@ -146,43 +150,43 @@ GPSD_OPTIONS=""
 EOF
 
 
-echo "\n\n Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 'sudo kismet'. "
+echo -e "\n Kismet is installed. Check/edit config at $kismet_conf. Run kismet with 'sudo kismet'."
 }
 
 function installWPASupplicant(){
     clear
     wget https://raw.githubusercontent.com/Muppetpants/wpa_supplicant/main/fixMyWpaSupplicant.sh
-    echo "\n\n Run script as sudo (sudo bash fixMyWpaSupplicant.sh)"
+    echo -e "\n Run script as sudo (sudo bash fixMyWpaSupplicant.sh)."
 }
 
 
 function installRpiAp (){
     clear
     wget https://raw.githubusercontent.com/Muppetpants/rpi-ap/main/rpi-ap.sh
-    echo "\n\n Run script as sudo (sudo bash rpi-ap.sh)"
+    echo -e "\n Run script as sudo (sudo bash rpi-ap.sh)."
 }
 
 
 function killBluetooth(){
     clear
     echo "dtoverlay=disable-bt" >> /boot/config.txt
-    echo "\n\n Bluetooth disabled on this Pi. To re-enable, remove dtoverlay=disable-bt from /boot/config.txt " 
+    echo -e "\n Bluetooth disabled on this Pi. To re-enable, remove/comment dtoverlay=disable-bt in /boot/config.txt." 
 }
 
 function installUseful(){
     apt install -y terminator net-tools nmap arp-scan ettercap-text-only aircrack-ng tshark steghide ftp
-    echo "\n\n Installed some useful tools... "
+    echo -e "\n Installed some useful tools... "
 }
 
 
 function install_everything(){
     installMotionEye
-    installWireguard
     installKismet
     installWPASupplicant
     installRpiAp
     killBluetooth
-    printMenu
+    installUseful
+    installWireguard
 }
 
 function showHelp(){
