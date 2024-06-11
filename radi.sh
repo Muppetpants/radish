@@ -115,6 +115,11 @@ function installKismet(){
     mkdir /home/$user/kismetFiles 2>/dev/null
     kismet_conf="/etc/kismet/kismet_site.conf"
     gpsd_conf="/etc/default/gpsd"
+    read -n1 -p "Press key to specify GPS device in use (USB0 = 1, ACM0 = 2): " gpsDev
+	case $gpsDev in
+        1) gpsPort=USB0;;
+        2) gpsPort=ACM0;;
+	esac
 
 wget -O - https://www.kismetwireless.net/repos/kismet-release.gpg.key --quiet | gpg --dearmor | sudo tee /usr/share/keyrings/kismet-archive-keyring.gpg >/dev/null
 echo 'deb [signed-by=/usr/share/keyrings/kismet-archive-keyring.gpg] https://www.kismetwireless.net/repos/apt/release/bullseye bullseye main' | sudo tee /etc/apt/sources.list.d/kismet.list >/dev/null
@@ -144,7 +149,7 @@ START_DAEMON="true"
 USBAUTO="true"
 # Devices gpsd should collect to at boot time.
 # They need to be read/writeable, either by user gpsd or the group dialout.
-DEVICES="/dev/ttyUSB0"
+DEVICES="/dev/tty$gpsPort"
 # Other options you want to pass to gpsd
 GPSD_OPTIONS=""
 EOF
