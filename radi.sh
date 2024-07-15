@@ -1,10 +1,8 @@
 #!/bin/bash
 
-
 clear
-
 asciiart=$(base64 -d <<< "X19fX19fICBfX18gX19fX19fIF8gICBfX19fXyBfICAgXyANCnwgX19fIFwvIF8gXHwgIF8gIChfKSAvICBfX198IHwgfCB8DQp8IHxfLyAvIC9fXCBcIHwgfCB8XyAgXCBgLS0ufCB8X3wgfA0KfCAgICAvfCAgXyAgfCB8IHwgfCB8ICBgLS0uIFwgIF8gIHwNCnwgfFwgXHwgfCB8IHwgfC8gL3wgfF8vXF9fLyAvIHwgfCB8DQpcX3wgXF9cX3wgfF8vX19fLyB8XyhfKV9fX18vXF98IHxfLw==") 
-revision="1.1"
+revision="1.2"
 archtype=$(uname -m)
     if [ "$archtype" == "aarch64" ]; 
       then 
@@ -31,7 +29,7 @@ function printMenu(){
     echo -e "  6 - Disable RPI BT radio     (Update /boot/config.txt (Breaks Kismet hci0))"         # killBluetooth
     echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc.)"    # installUseful
     echo -e "  a - Configure Wireguard      (Enable wg-quick with wg client .conf)"                 # configureWireguard
-    echo -e "  h - Halp me!                 (Quick man page on what's what around here)"            # showHelp
+    echo -e "  h - Halp me!                 (Quick man page on what's what around here)"            # showDetails
     echo -e "  x - Exit radi.sh             (Beat it, nerd.)"                                       # Exit
     echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, useful tools,etc.)"      # installEverything
     echo " "
@@ -45,7 +43,7 @@ case $menuinput in
         6) killBluetooth;;
         7) installUseful;;
         a|A) configureWireguard;;
-        h|H) showHelp;;
+        h|H) showDetails;;
         x|X) echo -e "\n Exiting radi.sh - Happy Hunting! \n" ;;
         !) install_everything;;
     esac
@@ -126,7 +124,7 @@ clear
 cat <<EOF > "$kismet_conf"
 #Overide File (kismet_site.conf)
 #bluetooth
-#source=hci0:type=linuxbluetooth
+source=hci0:type=linuxbluetooth
 #wifi
 #source=wlan0:default_ht20=true:channel_hoprate=5/sec,type=linuxwifi
 source=wlan1:default_ht20=true:channel_hoprate=5/sec,type=linuxwifi
@@ -189,12 +187,12 @@ function install_everything(){
     installWireguard
 }
 
-function showHelp(){
+function showDetails(){
     clear
-    echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    echo "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    echo -e "\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    echo -e "\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    echo -e "\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    echo -e "\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     read -n 1 -r -s -p $'Press any key to return to main menu.\n'
     printMenu
 
@@ -202,11 +200,11 @@ function showHelp(){
 
 optionsHelp()
 {
-   # Display Help
-   echo "\n\n Syntax: sudo bash radi.sh [-a|b|d|h|k|m|u|w]"
+   # Display help in CLI
+   echo -e "\n Syntax: sudo bash radi.sh [-a|b|d|h|k|m|u|w]"
    echo "options:"
    echo "-a     Install all tools"
-   echo "-b     Kill Bluetooth."
+   echo "-b     Kill Bluetooth"
    echo "-d     Print details about tools and set-up"
    echo "-h     Print help"
    echo "-k     Install kismet"
@@ -229,7 +227,7 @@ while getopts ":abdhkmuw" option; do
          killBluetooth
          exit;;
       d) # blah
-        showHelp
+        showDetails
         exit;;
       h) # blah
         optionsHelp
