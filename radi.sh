@@ -181,7 +181,8 @@ function installUseful(){
 }
 
 function installHotspot(){
-    echo "This script will check for network connectivity to a previously trusted WLAN two minutes after reboot. If the RADD has not established a connection with a previously trusted network, the RADD will start a WLAN hotspot to allow direct access."
+    clear
+    echo "This script will check for network connectivity to a previously trusted WLAN two minutes after reboot. If the RADD has not established a connection with a previously trusted network, the RADD will start a WLAN hotspot to allow direct access at 10.42.0.1."
     echo " " 
     read -p "Hotspot SSID: " ssid
     while true; do
