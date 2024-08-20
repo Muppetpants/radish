@@ -196,9 +196,9 @@ function installHotspot(){
 
     #Create script to run at reboot
     echo "#!/bin/bash" > hotspotJob.sh
+    echo "sudo /usr/bin/systemctl start NetworkManager" >> hotspotJob.sh
     echo "/usr/bin/nmcli d show wlan0 | grep disconnected" >> hotspotJob.sh
     echo "if [ \$? -eq 0 ]; then" >> hotspotJob.sh
-    echo -e " \t sudo systemctl start NetworkManager" >> hotspotJob.sh
     echo -e " \t /usr/bin/nmcli d wifi hotspot ifname wlan0 ssid $ssid password $passphrase" >> hotspotJob.sh
     echo "fi" >> hotspotJob.sh
     chmod 0644 hotspotJob.sh
