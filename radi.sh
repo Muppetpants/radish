@@ -2,7 +2,7 @@
 
 clear
 asciiart=$(base64 -d <<< "X19fX19fICBfX18gX19fX19fIF8gICBfX19fXyBfICAgXyANCnwgX19fIFwvIF8gXHwgIF8gIChfKSAvICBfX198IHwgfCB8DQp8IHxfLyAvIC9fXCBcIHwgfCB8XyAgXCBgLS0ufCB8X3wgfA0KfCAgICAvfCAgXyAgfCB8IHwgfCB8ICBgLS0uIFwgIF8gIHwNCnwgfFwgXHwgfCB8IHwgfC8gL3wgfF8vXF9fLyAvIHwgfCB8DQpcX3wgXF9cX3wgfF8vX19fLyB8XyhfKV9fX18vXF98IHxfLw==") 
-revision="1.2"
+revision="2.0"
 archtype=$(uname -m)
     if [ "$archtype" == "aarch64" ]; 
       then 
@@ -17,7 +17,7 @@ archtype=$(uname -m)
 function printMenu(){
     clear
     echo -e "$asciiart"
-    echo "Your one-stop shop for rad RAD builds." 
+    echo "Your one-stop shop for rad RADD builds." 
     echo -e "\n    Select an option from menu:             Rev: $revision Arch: $arch"
     echo -e "\n Key  Menu Option:             Description:"
     echo -e " ---  ------------             ------------"
@@ -28,6 +28,7 @@ function printMenu(){
     echo -e "  5 - Add RPI AP script        (Install BwithE's Hostapd script)"                      # installRpiAp
     echo -e "  6 - Disable RPI BT radio     (Update /boot/config.txt (Breaks Kismet hci0))"         # killBluetooth
     echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc.)"    # installUseful
+    echo -e "  8 - Install hotspot cron     (Creates break-glass access to Pi via hotspot)"         # installHotspot
     echo -e "  a - Configure Wireguard      (Enable wg-quick with wg client .conf)"                 # configureWireguard
     echo -e "  h - Halp me!                 (Quick man page on what's what around here)"            # showDetails
     echo -e "  x - Exit radi.sh             (Beat it, nerd.)"                                       # Exit
@@ -42,6 +43,7 @@ case $menuinput in
         5) installRpiAp;;
         6) killBluetooth;;
         7) installUseful;;
+        8) installHotspot;;
         a|A) configureWireguard;;
         h|H) showDetails;;
         x|X) echo -e "\n Exiting radi.sh - Happy Hunting! \n" ;;
@@ -51,7 +53,7 @@ case $menuinput in
                         
 function checkRoot() {
 	if [ "${EUID}" -ne 0 ]; then
-		echo -e "\n Radi.sh requires root privileges (e.g. sudo bash radi.sh)"
+		echo -e "\n radi.sh requires root privileges (e.g. sudo bash radi.sh)"
 		exit 1
 	fi
 }
@@ -75,13 +77,10 @@ function installMotionEye() {
 
 function installWireguard() {
     clear
-    # echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-    # echo "nameserver 8.4.4.8" >> /etc/resolv.conf
     apt update -y
     apt install -y wireguard resolvconf
     echo "nameserver 8.8.8.8" >> /etc/resolvconf/resolv.conf.d/head
     echo "nameserver 8.4.4.8" >> /etc/resolvconf/resolv.conf.d/head
-    #bash /etc/resolvconf/update.d/libc
     echo -e "\n Wireguard client has been installed."
     sleep 1
     echo -e "\n Radi.sh requires a reboot becuase resolvconf is an asshole"
@@ -108,7 +107,6 @@ function configureWireguard() {
 }
 
 function installKismet(){
-    clear
     user=$(logname)
     mkdir /home/$user/kismetFiles 2>/dev/null
     kismet_conf="/etc/kismet/kismet_site.conf"
@@ -129,12 +127,12 @@ clear
 cat <<EOF > "$kismet_conf"
 #Overide File (kismet_site.conf)
 #bluetooth
-source=hci0:type=linuxbluetooth
+#source=hci0:type=linuxbluetooth
 #wifi
 #source=wlan0:default_ht20=true:channel_hoprate=5/sec,type=linuxwifi
 source=wlan1:default_ht20=true:channel_hoprate=5/sec,type=linuxwifi
 #gps
-gps=gpsd:host=localhost,port=2947
+gps=gpsd:host=localhost,port=2947,reconnect=true
 #Update logging path
 log_prefix=/home/$user/kismetFiles
 log_types=kismet,pcapng
@@ -149,7 +147,7 @@ USBAUTO="true"
 # They need to be read/writeable, either by user gpsd or the group dialout.
 DEVICES="/dev/tty$gpsPort"
 # Other options you want to pass to gpsd
-GPSD_OPTIONS=""
+GPSD_OPTIONS="-n -b"
 EOF
 
 
@@ -177,8 +175,37 @@ function killBluetooth(){
 }
 
 function installUseful(){
-    apt install -y terminator net-tools nmap arp-scan ettercap-text-only aircrack-ng tshark steghide ftp
+    apt install -y terminator net-tools nmap arp-scan ettercap-text-only aircrack-ng tshark steghide ftp wireshark-common
+    sudo chmod a+x /usr/bin/dumpcap
     echo -e "\n Installed some useful tools... "
+}
+
+function installHotspot(){
+    echo "This script will check for network connectivity to a previously trusted WLAN two minutes after reboot. If the RADD has not established a connection with a previously trusted network, the RADD will start a WLAN hotspot to allow direct access."
+    echo " " 
+    read -p "Hotspot SSID: " ssid
+    while true; do
+        read -s -p "Passphrase (8+): " passphrase
+        echo
+        read -s -p "Passphrase (8+) (again): " passphrase2
+        echo
+        [ "$passphrase" = "$passphrase2" ] && break
+        echo "Please try again"
+    done
+
+    #Create script to run at reboot
+    echo "#!/bin/bash" > hotspotJob.sh
+    echo "/usr/bin/nmcli d show wlan0 | grep disconnected" >> hotspotJob.sh
+    echo "if [ \$? -eq 0 ]; then" >> hotspotJob.sh
+    echo -e " \t /usr/bin/nmcli d wifi hotspot ifname wlan0 ssid $ssid password $passphrase" >> hotspotJob.sh
+    echo "fi" >> hotspotJob.sh
+    chmod 0644 hotspotJob.sh
+
+    #Create cron entry
+    rm /etc/cron.d/hotspot 2>/dev/null
+    filePath=$(pwd)
+    echo "@reboot sleep 120; bash $filePath/hotspotJob.sh" > /etc/cron.d/hotspot
+    chmod 0644 /etc/cron.d/hotspot
 }
 
 
@@ -189,15 +216,23 @@ function install_everything(){
     installRpiAp
     killBluetooth
     installUseful
+    installHotspot
     installWireguard
 }
 
 function showDetails(){
     clear
-    echo -e "\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    echo -e "\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    echo -e "\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    echo -e "\n Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    echo -e "\n 1 - Add MotionEye: This option checks for bullseye before running and then installs and enables Motioneye as as a service which can be reached at port 8765. Standard camera set-up is still required (add camera, update conf, etc.) This options also disables motion.service which interferes with the motioneye service."
+    echo -e "\n 2 - Add Wireguard: This options installs the wireguard client and resolvconf. This option does nothing to configure individual wireguard certificates."
+    echo -e "\n 3 - Add Kimset: This option installs and configures GPSD, installs kismet, and creates an intial kismet override file (/etc/kismet_site.conf). The override file specifies an output directory in the user's home, and enables WLAN on wlan1. Default outputs include .kismet and .pcapng. BT can be enabled by uncommenting the "source=hci0" line within the override file."
+    echo -e "\n 4"
+    echo -e "\n 5"
+    echo -e "\n 6 - Disable RPI BT radio: This option disables the BT radio. Can be useful for leave-behind devices but will break hci0 collection in kismet (disabled by default). To re-enable this, open /boot/config.txt and remove or comment the line "dtoverlay=disable-bt"."
+    echo -e "\n 7 - Install useful tools: This option installs terminator, net-tools, nmap, arp-scan, ettercap-text-only, aircrack-ng, tshark, steghide, and ftp client."
+    echo -e "\n 8 - Install hotspot cron: This option is intended to create a method to access the RADD when it does not establish other WLAN connectivity. This option asks for user input for SSID and passphrase (special characters should be avoided). and then builds a script in the working directory and a cron job called /etc/cron.d/hotspot This can be useful for set-up and testing, but should be disabled (move or remove the cron file or script) prior to sending a RADD into the wild."
+    echo -e "\n a - Configure Wireguard: This option requires a valid wireguard client conf file. It renames and moves the conf to /etc/wireguard/PiUser and then starts and enables the wireguard service for PiUser. "
+    echo -e "\n ! - Install everything. CAUTION!"
+
     read -n 1 -r -s -p $'Press any key to return to main menu.\n'
     printMenu
 
