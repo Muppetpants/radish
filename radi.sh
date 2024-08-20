@@ -163,7 +163,7 @@ function installWPASupplicant(){
 
 function installDDD (){
     clear
-    sudo apt install tcpdump python3-crypto ipython3
+    pip3 install scapy-python3
     git clone https://github.com/Muppetpants/DDDScapy.git
     echo -e "\n cd into DDDScapy and read the README.md."
 }
