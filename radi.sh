@@ -23,16 +23,16 @@ function printMenu(){
     echo -e " ---  ------------             ------------"
     echo -e "  1 - Add MotionEye            (Install MotionEye, disable/stop motion)"               # installMotionEye
     echo -e "  2 - Add Wireguard            (Install Wireguard client *REQUIRES REBOOT*)"           # installWireguard
-    echo -e "  3 - Add Kimset               (Install Kismet and creates override file)"             # installKismet
+    echo -e "  3 - Add Kismet               (Install Kismet and creates override file)"             # installKismet
     echo -e "  4 - Add wpa_supp. script     (Install BwithE's wpa_supplicant.conf tool)"            # installWPASupplicant
-    echo -e "  5 - Add RPI AP script        (Install BwithE's Hostapd script)"                      # installRpiAp
-    echo -e "  6 - Disable RPI BT radio     (Update /boot/config.txt (Breaks Kismet hci0))"         # killBluetooth
+    echo -e "  5 - Add DDDScapy             (Install probe stuffing python script)"                 # installDDD
+    echo -e "  6 - Disable RPI BT radio     (CAUTION! Update /boot/config.txt (Breaks Kismet))"     # killBluetooth
     echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc.)"    # installUseful
     echo -e "  8 - Install hotspot cron     (Creates break-glass access to Pi via hotspot)"         # installHotspot
     echo -e "  a - Configure Wireguard      (Enable wg-quick with wg client .conf)"                 # configureWireguard
     echo -e "  h - Halp me!                 (Quick man page on what's what around here)"            # showDetails
     echo -e "  x - Exit radi.sh             (Beat it, nerd.)"                                       # Exit
-    echo -e "  ! - Add all the things       (MotionEye, Wireguard, Kismet, useful tools,etc.)"      # installEverything
+    echo -e "  ! - Add all the things       (CAUTION! MotionEye, Wireguard, Kismet, etc...)"        # installEverything
     echo " "
  read -n1 -p "Press key for menu item selection or press X to exit: " menuinput
 case $menuinput in
@@ -40,7 +40,7 @@ case $menuinput in
         2) installWireguard;;
         3) installKismet;;
         4) installWPASupplicant;;
-        5) installRpiAp;;
+        5) installDDD;;
         6) killBluetooth;;
         7) installUseful;;
         8) installHotspot;;
@@ -161,10 +161,10 @@ function installWPASupplicant(){
 }
 
 
-function installRpiAp (){
+function installDDD (){
     clear
-    wget https://raw.githubusercontent.com/Muppetpants/rpi-ap/main/rpi-ap.sh
-    echo -e "\n Run script as sudo (sudo bash rpi-ap.sh)."
+    git clone https://github.com/Muppetpants/DDDScapy.git
+    echo -e "\n cd into DDDScapy and read the README.md."
 }
 
 
@@ -230,7 +230,7 @@ function showDetails(){
     echo -e "\n 2 - Add Wireguard: This options installs the wireguard client and resolvconf. This option does nothing to configure individual wireguard certificates."
     echo -e "\n 3 - Add Kimset: This option installs and configures GPSD, installs kismet, and creates an intial kismet override file (/etc/kismet_site.conf). The override file specifies an output directory in the user's home, and enables WLAN on wlan1. Default outputs include .kismet and .pcapng. BT can be enabled by uncommenting the "source=hci0" line within the override file."
     echo -e "\n 4"
-    echo -e "\n 5"
+    echo -e "\n 5 - This tool facilitates digital dead drops by stuffing the contents of file.txt into crafted probe request packets. By default, sends 10x packets for each line of text in file.txt"
     echo -e "\n 6 - Disable RPI BT radio: This option disables the BT radio. Can be useful for leave-behind devices but will break hci0 collection in kismet (disabled by default). To re-enable this, open /boot/config.txt and remove or comment the line "dtoverlay=disable-bt"."
     echo -e "\n 7 - Install useful tools: This option installs terminator, net-tools, nmap, arp-scan, ettercap-text-only, aircrack-ng, tshark, steghide, and ftp client."
     echo -e "\n 8 - Install hotspot cron: This option is intended to create a method to access the RADD when it does not establish other WLAN connectivity. This option asks for user input for SSID and passphrase (special characters should be avoided). and then builds a script in the working directory and a cron job called /etc/cron.d/hotspot This can be useful for set-up and testing, but should be disabled (move or remove the cron file or script) prior to sending a RADD into the wild."
