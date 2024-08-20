@@ -163,9 +163,9 @@ function installWPASupplicant(){
 
 function installDDD (){
     clear
-    pip3 install scapy-python3
+    sudo pip install scapy
     git clone https://github.com/Muppetpants/DDDScapy.git
-    echo -e "\n cd into DDDScapy and read the README.md."
+    echo -e "\n Repo and scapy have been installed. cd into DDDScapy and cat the README.md."
 }
 
 
