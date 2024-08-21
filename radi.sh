@@ -220,6 +220,12 @@ function addKali(){
     clear
     wget http://archive.kali.org/archive-key.asc -O /etc/apt/trusted.gpg.d/kali-archive-key.asc
     echo "deb http://http.kali.org/kali kali-last-snapshot main contrib non-free non-free-firmware" >> /etc/apt/sources.list
+    sudo apt update
+    clear
+    echo "Kali repo successfully installed"
+    read -n 1 -r -s -p $'Press any key to return to main menu.\n'
+    printMenu
+    
 
 }
 
