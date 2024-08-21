@@ -29,6 +29,7 @@ function printMenu(){
     echo -e "  6 - Disable RPI BT radio     (CAUTION! Update /boot/config.txt (Breaks Kismet))"     # killBluetooth
     echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc.)"    # installUseful
     echo -e "  8 - Install hotspot cron     (Creates break-glass access to Pi via hotspot)"         # installHotspot
+    echo -e "  9 - Add Kali Repo            (Updates source.list for Kali last-snapshot)"           # addKali
     echo -e "  a - Configure Wireguard      (Enable wg-quick with wg client .conf)"                 # configureWireguard
     echo -e "  h - Halp me!                 (Quick man page on what's what around here)"            # showDetails
     echo -e "  x - Exit radi.sh             (Beat it, nerd.)"                                       # Exit
@@ -44,6 +45,7 @@ case $menuinput in
         6) killBluetooth;;
         7) installUseful;;
         8) installHotspot;;
+	9) addKali;;
         a|A) configureWireguard;;
         h|H) showDetails;;
         x|X) echo -e "\n Exiting radi.sh - Happy Hunting! \n" ;;
@@ -107,11 +109,12 @@ function configureWireguard() {
 }
 
 function installKismet(){
+    clear
     user=$(logname)
     mkdir /home/$user/kismetFiles 2>/dev/null
     kismet_conf="/etc/kismet/kismet_site.conf"
     gpsd_conf="/etc/default/gpsd"
-    read -n1 -p "Press key to specify GPS device in use (USB0 = 1, ACM0 = 2): " gpsDev
+    read -n1 -p "Press key to specify GPS device in use (Black USB0 = 1, Red ACM0 = 2): " gpsDev
 	case $gpsDev in
         1) gpsPort=USB0;;
         2) gpsPort=ACM0;;
@@ -213,6 +216,13 @@ function installHotspot(){
     
 }
 
+function addKali(){
+    clear
+    wget http://archive.kali.org/archive-key.asc -O /etc/apt/trusted.gpg.d/kali-archive-key.asc
+    echo "deb http://http.kali.org/kali kali-last-snapshot main contrib non-free non-free-firmware" >> /etc/apt/sources.list
+
+}
+
 
 function install_everything(){
     installMotionEye
@@ -230,13 +240,14 @@ function showDetails(){
     echo -e "\n 1 - Add MotionEye: This option checks for bullseye before running and then installs and enables Motioneye as as a service which can be reached at port 8765. Standard camera set-up is still required (add camera, update conf, etc.) This options also disables motion.service which interferes with the motioneye service."
     echo -e "\n 2 - Add Wireguard: This options installs the wireguard client and resolvconf. This option does nothing to configure individual wireguard certificates."
     echo -e "\n 3 - Add Kimset: This option installs and configures GPSD, installs kismet, and creates an intial kismet override file (/etc/kismet_site.conf). The override file specifies an output directory in the user's home, and enables WLAN on wlan1. Default outputs include .kismet and .pcapng. BT can be enabled by uncommenting the "source=hci0" line within the override file."
-    echo -e "\n 4"
+    echo -e "\n 4 - Adds a script that helps build out wpa_supplicant.conf"
     echo -e "\n 5 - This tool facilitates digital dead drops by stuffing the contents of file.txt into crafted probe request packets. By default, sends 10x packets for each line of text in file.txt"
     echo -e "\n 6 - Disable RPI BT radio: This option disables the BT radio. Can be useful for leave-behind devices but will break hci0 collection in kismet (disabled by default). To re-enable this, open /boot/config.txt and remove or comment the line "dtoverlay=disable-bt"."
     echo -e "\n 7 - Install useful tools: This option installs terminator, net-tools, nmap, arp-scan, ettercap-text-only, aircrack-ng, tshark, steghide, and ftp client."
     echo -e "\n 8 - Install hotspot cron: This option is intended to create a method to access the RADD when it does not establish other WLAN connectivity. This option asks for user input for SSID and passphrase (special characters should be avoided). and then builds a script in the working directory and a cron job called /etc/cron.d/hotspot This can be useful for set-up and testing, but should be disabled (move or remove the cron file or script) prior to sending a RADD into the wild."
+    echo -e "\n 9 - Add Kali: This option pulls GPG key and adds Kali repo to /etc/apt/source.list to allow installation of kali tools."
     echo -e "\n a - Configure Wireguard: This option requires a valid wireguard client conf file. It renames and moves the conf to /etc/wireguard/PiUser and then starts and enables the wireguard service for PiUser. "
-    echo -e "\n ! - Install everything. CAUTION!"
+    echo -e "\n ! - Install everything. CAUTION! "
 
     read -n 1 -r -s -p $'Press any key to return to main menu.\n'
     printMenu
