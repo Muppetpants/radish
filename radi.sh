@@ -17,6 +17,7 @@ archtype=$(uname -m)
 function printMenu(){
     clear
     echo -e "$asciiart"
+    echo
     echo "Your one-stop shop for rad RADD builds." 
     echo -e "\n    Select an option from menu:             Rev: $revision Arch: $arch"
     echo -e "\n Key  Menu Option:             Description:"
