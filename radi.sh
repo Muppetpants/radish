@@ -24,7 +24,7 @@ function printMenu(){
     echo -e "  1 - Add MotionEye            (Install MotionEye, disable/stop motion)"               # installMotionEye
     echo -e "  2 - Add Wireguard            (Install Wireguard client *REQUIRES REBOOT*)"           # installWireguard
     echo -e "  3 - Add Kismet               (Install Kismet and creates override file)"             # installKismet
-    echo -e "  4 - Add wpa_supp. script     (Install BwithE's wpa_supplicant.conf tool)"            # installWPASupplicant
+    echo -e "  4 - Add wpa_supp. script     (Install useful wpa_supplicant.conf tool)"              # installWPASupplicant
     echo -e "  5 - Add DDDScapy             (Install probe stuffing python script)"                 # installDDD
     echo -e "  6 - Disable RPI BT radio     (CAUTION! Update /boot/config.txt (Breaks Kismet))"     # killBluetooth
     echo -e "  7 - Install useful tools     (net-tools, nmap, arp-scan, aircrack, tshark, etc.)"    # installUseful
@@ -159,8 +159,8 @@ echo -e "\n Kismet is installed. Check/edit config at $kismet_conf. Run kismet w
 
 function installWPASupplicant(){
     clear
-    wget https://raw.githubusercontent.com/Muppetpants/wpa_supplicant/main/fixMyWpaSupplicant.sh
-    echo -e "\n Run script as sudo (sudo bash fixMyWpaSupplicant.sh)."
+    git clone https://github.com/Muppetpants/WLAN-Connect.git
+    echo -e "\n WLAN-Connect directory downloaded. View README.md for usage."
 }
 
 
