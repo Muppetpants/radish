@@ -3,6 +3,7 @@
 clear
 asciiart=$(base64 -d <<< "X19fX19fICBfX18gX19fX19fIF8gICBfX19fXyBfICAgXyANCnwgX19fIFwvIF8gXHwgIF8gIChfKSAvICBfX198IHwgfCB8DQp8IHxfLyAvIC9fXCBcIHwgfCB8XyAgXCBgLS0ufCB8X3wgfA0KfCAgICAvfCAgXyAgfCB8IHwgfCB8ICBgLS0uIFwgIF8gIHwNCnwgfFwgXHwgfCB8IHwgfC8gL3wgfF8vXF9fLyAvIHwgfCB8DQpcX3wgXF9cX3wgfF8vX19fLyB8XyhfKV9fX18vXF98IHxfLw==") 
 revision="2.0"
+flavor=$(cat /etc/os-release | awk -F '[=]' '/PRETTY/ {print $2}')
 archtype=$(uname -m)
     if [ "$archtype" == "aarch64" ]; 
       then 
@@ -19,7 +20,8 @@ function printMenu(){
     echo -e "$asciiart"
     echo
     echo "Your one-stop shop for rad RADD builds." 
-    echo -e "\n    Select an option from menu:             Rev: $revision Arch: $arch"
+    echo -e "\n    Select an option from menu:             Rev: $revision     Arch: $arch"
+    echo -e "						   Flavor: $flavor"
     echo -e "\n Key  Menu Option:             Description:"
     echo -e " ---  ------------             ------------"
     echo -e "  1 - Add MotionEye            (Install MotionEye, disable/stop motion)"               # installMotionEye
