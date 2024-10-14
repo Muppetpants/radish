@@ -133,7 +133,7 @@ clear
 cat <<EOF > "$kismet_conf"
 #Overide File (kismet_site.conf)
 #bluetooth
-#source=hci0:type=linuxbluetooth
+source=hci0:type=linuxbluetooth
 #wifi
 #source=wlan0:default_ht20=true:channel_hoprate=5/sec,type=linuxwifi
 source=wlan1:default_ht20=true:channel_hoprate=5/sec,type=linuxwifi
@@ -141,7 +141,7 @@ source=wlan1:default_ht20=true:channel_hoprate=5/sec,type=linuxwifi
 gps=gpsd:host=localhost,port=2947,reconnect=true
 #Update logging path
 log_prefix=/home/$user/kismetFiles
-log_types=kismet,pcapng
+log_types=kismet
 EOF
 
 cat <<EOF > "$gpsd_conf"
@@ -153,7 +153,7 @@ USBAUTO="true"
 # They need to be read/writeable, either by user gpsd or the group dialout.
 DEVICES="/dev/tty$gpsPort"
 # Other options you want to pass to gpsd
-GPSD_OPTIONS="-n -b"
+GPSD_OPTIONS=" "
 EOF
 
 
